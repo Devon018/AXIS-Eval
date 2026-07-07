@@ -1,0 +1,41 @@
+experiment:
+  name: robotwin_pi05_eval
+  output_dir: outputs/robotwin_pi05
+
+benchmark:
+  name: robotwin
+  task_suite: default
+  task_ids: [beat_block_hammer]
+  num_episodes: 5
+  max_episode_steps: 600
+  save_video: true
+  seed: 0
+  robotwin_root: /root/workspace/dihong/AXIS-Eval/tmp/vendor/RoboTwin-c3ddfa8b97d5519efa828b075999bd0006778e5e
+  task_config: demo_clean
+  # Optional. When null, the adapter uses RoboTwin's official envs.<task_id> class
+  # and calls setup_demo(...) with task_config settings.
+  environment_factory: null
+  action_type: qpos
+  action_dim: 14
+
+model:
+  name: pi0.5
+  checkpoint_path: /data/openpi_cache/openpi-assets/checkpoints/pi05_libero
+  policy_config: pi05_libero
+  device: cuda:0
+  host: localhost
+  port: 18001
+  auto_start_server: true
+  openpi_root: /root/workspace/dihong/axis-training/third_party/openpi
+  openpi_python: /root/miniconda3/envs/axis-training/bin/python
+  openpi_client_path: /root/workspace/dihong/axis-training/third_party/openpi/packages/openpi-client/src
+  server_log_path: tmp/robotwin_pi05_server.log
+  image_size: 224
+  base_image_key: agentview
+  left_wrist_image_key: wrist
+  state_dim: 8
+
+logging:
+  save_report: true
+  save_video: true
+  video_fps: 10

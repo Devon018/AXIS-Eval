@@ -1,0 +1,38 @@
+experiment:
+  name: libero_plus_pi05_eval
+  output_dir: outputs/libero_plus_pi05
+
+benchmark:
+  name: libero_plus
+  task_suite: libero_object
+  task_ids: [0]
+  num_episodes: 5
+  max_episode_steps: 600
+  save_video: true
+  seed: 0
+  num_steps_wait: 10
+  resolution: 256
+  libero_root: /root/workspace/dihong/axis-training/third_party/LIBERO-plus
+  libero_config_path: /root/workspace/dihong/axis-training/tmp/libero_plus_config
+
+model:
+  name: pi0.5
+  checkpoint_path: /data/openpi_cache/openpi-assets/checkpoints/pi05_libero
+  policy_config: pi05_libero
+  device: cuda:0
+  host: localhost
+  port: 18000
+  auto_start_server: true
+  openpi_root: /root/workspace/dihong/axis-training/third_party/openpi
+  openpi_python: /root/miniconda3/envs/axis-training/bin/python
+  openpi_client_path: /root/workspace/dihong/axis-training/third_party/openpi/packages/openpi-client/src
+  server_log_path: tmp/libero_plus_pi05_server.log
+  image_size: 224
+  base_image_key: agentview
+  left_wrist_image_key: wrist
+  state_dim: 8
+
+logging:
+  save_report: true
+  save_video: true
+  video_fps: 10

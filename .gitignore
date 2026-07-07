@@ -1,0 +1,6 @@
+tmp/
+outputs/
+__pycache__/
+*.py[cod]
+AGENT.md
+AGENTS.md

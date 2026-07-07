@@ -1,0 +1,40 @@
+experiment:
+  name: robocasa_pi05_eval
+  output_dir: outputs/robocasa_pi05
+
+benchmark:
+  name: robocasa
+  task_suite: default
+  task_ids: [robocasa/PickPlaceCounterToCabinet]
+  num_episodes: 5
+  max_episode_steps: 1000
+  save_video: true
+  seed: 0
+  env_id: robocasa/PickPlaceCounterToCabinet
+  split: pretrain
+  robocasa_root: /root/workspace/dihong/AXIS-Eval/tmp/vendor/robocasa-be22d659b02db8f6d7f3a3c3edc742934fdcbaae
+  robosuite_root: /root/workspace/dihong/AXIS-Eval/tmp/vendor/robosuite-85abee228d1c43ab1939bce33028099945d453b4
+  obj_registries: [lightwheel]
+  render_mode: rgb_array
+
+model:
+  name: pi0.5
+  checkpoint_path: /data/openpi_checkpoints/pi05_robocasa365_atomic_zarr_cpt/robocasa365_atomic_zarr_cpt_8gpu_b48_30k_20260529_090634/2000
+  policy_config: pi05_robocasa365_atomic_zarr_cpt
+  device: cuda:0
+  host: localhost
+  port: 18002
+  auto_start_server: true
+  openpi_root: /root/workspace/dihong/axis-training/third_party/openpi
+  openpi_python: /root/miniconda3/envs/axis-training/bin/python
+  openpi_client_path: /root/workspace/dihong/axis-training/third_party/openpi/packages/openpi-client/src
+  server_log_path: tmp/robocasa_pi05_server.log
+  image_size: 224
+  base_image_key: agentview
+  left_wrist_image_key: wrist
+  state_dim: 7
+
+logging:
+  save_report: true
+  save_video: true
+  video_fps: 10
