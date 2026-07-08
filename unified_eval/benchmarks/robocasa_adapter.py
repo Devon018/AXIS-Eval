@@ -36,6 +36,7 @@ class RoboCasaAdapter(BenchmarkAdapter):
             "wrist_image",
         ),
         proprio_key: str | None = None,
+        proprio_keys: Sequence[str] | None = None,
         action_dim: int | None = None,
         pad_short_actions: bool = True,
         **env_kwargs: Any,
@@ -54,6 +55,7 @@ class RoboCasaAdapter(BenchmarkAdapter):
         self.image_keys = tuple(image_keys)
         self.wrist_image_keys = tuple(wrist_image_keys)
         self.proprio_key = proprio_key
+        self.proprio_keys = tuple(proprio_keys) if proprio_keys else None
         self.action_dim = action_dim
         self.pad_short_actions = bool(pad_short_actions)
         self.env_kwargs = env_kwargs
@@ -227,6 +229,13 @@ class RoboCasaAdapter(BenchmarkAdapter):
         return np.ascontiguousarray(arr)
 
     def _proprio(self, obs: dict[str, Any]) -> np.ndarray | None:
+        if self.proprio_keys:
+            parts = []
+            for key in self.proprio_keys:
+                if key not in obs:
+                    raise KeyError(f"Configured RoboCasa proprio_keys entry missing: {key}")
+                parts.append(np.asarray(obs[key], dtype=np.float32).reshape(-1))
+            return np.concatenate(parts)
         if self.proprio_key:
             if self.proprio_key not in obs:
                 raise KeyError(f"Configured RoboCasa proprio_key missing: {self.proprio_key}")

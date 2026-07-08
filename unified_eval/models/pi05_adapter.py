@@ -34,6 +34,7 @@ class Pi05Adapter(UnifiedPolicyModel):
         state_dim: int = 7,
         allow_zero_proprio: bool = False,
         action_key: str = "actions",
+        obs_schema: str = "flat",
         xla_mem_fraction: float = 0.85,
         extra_pythonpath: list[str] | None = None,
     ):
@@ -55,6 +56,9 @@ class Pi05Adapter(UnifiedPolicyModel):
         self.state_dim = int(state_dim)
         self.allow_zero_proprio = bool(allow_zero_proprio)
         self.action_key = action_key
+        if obs_schema not in ("flat", "droid"):
+            raise ValueError(f"obs_schema must be 'flat' or 'droid', got {obs_schema!r}")
+        self.obs_schema = obs_schema
         self.xla_mem_fraction = float(xla_mem_fraction)
         self.extra_pythonpath = extra_pythonpath or []
         self._server_proc: subprocess.Popen | None = None
@@ -147,6 +151,25 @@ class Pi05Adapter(UnifiedPolicyModel):
         base_image = image_tools.convert_to_uint8(
             image_tools.resize_with_pad(base_image, self.image_size, self.image_size)
         )
+        if self.obs_schema == "droid":
+            # DROID-style element for policies trained with droid_policy.DroidInputs
+            # (pi05_droid / pi05_axis_clean_local_droid_*): joint_position(7) + gripper_position(1).
+            state = self._state(obs)
+            if state.size < 8:
+                raise ValueError(f"droid obs_schema needs >=8-D proprio (7 joints + gripper), got {state.size}")
+            wrist_key = self.left_wrist_image_key or self.base_image_key
+            wrist_image = image_tools.convert_to_uint8(
+                image_tools.resize_with_pad(self._image(obs.images, wrist_key), self.image_size, self.image_size)
+            )
+            element: dict[str, Any] = {
+                "observation/exterior_image_1_left": base_image,
+                "observation/wrist_image_left": wrist_image,
+                "observation/joint_position": state[:7],
+                "observation/gripper_position": state[7:8],
+                "prompt": obs.language or self._task or "",
+            }
+            element["meta"] = dict(obs.meta)
+            return element
         element: dict[str, Any] = {
             "observation/image": base_image,
             "observation/state": self._state(obs),
